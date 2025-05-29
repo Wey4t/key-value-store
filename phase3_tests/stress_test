@@ -1,0 +1,68 @@
+{"op": "REGISTER", "uid": "mhopnd", "pass": "3u46b87q"}
+{"op": "REGISTER", "uid": "kp60ul", "pass": "y3tt9uoy"}
+{"op": "REGISTER", "uid": "0fojol", "pass": "81v8c0kd"}
+{"op": "REGISTER", "uid": "3th4s9", "pass": "qixb98nq"}
+{"op": "REGISTER", "uid": "3a6gqw", "pass": "9kkn41af"}
+{"op": "LOGIN", "uid": "3a6gqw", "pass": "9kkn41af"}
+{"op": "CREATE", "key": "i3c8s8", "val": "29k2qcv7"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "0fojol", "pass": "81v8c0kd"}
+{"op": "CREATE", "key": "apijre", "val": "okud2g4f"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "0fojol", "pass": "81v8c0kd"}
+{"op": "CREATE", "key": "099np4", "val": "bb3m0jkx"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "0fojol", "pass": "81v8c0kd"}
+{"op": "CREATE", "key": "rfhg2y", "val": "g4p5x750"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "3th4s9", "pass": "qixb98nq"}
+{"op": "CREATE", "key": "zdiuzc", "val": "poe12s3c"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "0fojol", "pass": "81v8c0kd"}
+{"op": "CREATE", "key": "s7pxx3", "val": "fkx39rcv"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "3a6gqw", "pass": "9kkn41af"}
+{"op": "MODACL", "key": "i3c8s8", "indirects": ["apijre"]}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "3a6gqw", "pass": "9kkn41af"}
+{"op": "MODACL", "key": "apijre", "indirects": ["s7pxx3", "099np4", "i3c8s8"]}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "mhopnd", "pass": "3u46b87q"}
+{"op": "MODACL", "key": "099np4", "indirects": ["zdiuzc", "s7pxx3"]}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "0fojol", "pass": "81v8c0kd"}
+{"op": "MODACL", "key": "rfhg2y", "indirects": ["apijre", "s7pxx3", "zdiuzc"]}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "3a6gqw", "pass": "9kkn41af"}
+{"op": "MODACL", "key": "zdiuzc", "indirects": ["i3c8s8", "apijre", "099np4"]}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "0fojol", "pass": "81v8c0kd"}
+{"op": "MODACL", "key": "s7pxx3", "indirects": ["rfhg2y", "i3c8s8"]}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "kp60ul", "pass": "y3tt9uoy"}
+{"op": "REVACL", "key": "i3c8s8"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "3a6gqw", "pass": "9kkn41af"}
+{"op": "REVACL", "key": "apijre"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "3a6gqw", "pass": "9kkn41af"}
+{"op": "REVACL", "key": "099np4"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "kp60ul", "pass": "y3tt9uoy"}
+{"op": "REVACL", "key": "rfhg2y"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "0fojol", "pass": "81v8c0kd"}
+{"op": "REVACL", "key": "zdiuzc"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "kp60ul", "pass": "y3tt9uoy"}
+{"op": "REVACL", "key": "s7pxx3"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "3a6gqw", "pass": "9kkn41af"}
+{"op": "DELETE", "key": "zdiuzc"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "3th4s9", "pass": "qixb98nq"}
+{"op": "DELETE", "key": "zdiuzc"}
+{"op": "LOGOUT"}
+{"op": "LOGIN", "uid": "0fojol", "pass": "81v8c0kd"}
+{"op": "DELETE", "key": "zdiuzc"}
+{"op": "LOGOUT"}

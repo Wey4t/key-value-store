@@ -1,0 +1,196 @@
+In Phase 2 of the project we modify sessions to require the correct password to LOGIN given a uid.
+In addition, we have the REGISTER operation that allows us to associate a password with a uid, if 
+that user has never REGISTERed before. Also, we have CHANGE_PASS, which allows us to change the 
+password associated with a uid.
+Test files are in the tests/ directory
+
+
+I have tests in operations_fail_before_session and operations_fail_after_session to verify 
+all operations fail outside of a session. These run every valid operation before and after 
+successfully creating an encrypted session, checking that both FAIL in every case. The only 
+difference should be the output of operations_fail_after_session starting with a successful 
+REGISTER, LOGIN, and LOGOUT. Note that for CHANGE_PASS, we checked with and without adding 
+the uid, as it should fail regardless.
+
+Expected output of operations_fail_before_session:
+Input: {"key":"first","val":"one","op":"CREATE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"first","val":"new one","op":"WRITE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"COPY","src_key":"first","dst_key":"second","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"READ","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"DELETE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"second","val":null,"op":"CHANGE_PASS","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"pass1","new_pass":"new_pass1"}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"CHANGE_PASS","src_key":"","dst_key":"","uid":"user1","pass":"","old_pass":"pass1","new_pass":"new_pass1"}
+Output: {"status":"FAIL","val":null,"uid":""}
+
+Expected output of operations_fail_after_session:
+Input: {"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":"one","op":"CREATE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"first","val":"new one","op":"WRITE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"COPY","src_key":"first","dst_key":"second","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"READ","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"DELETE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"CHANGE_PASS","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"pass1","new_pass":"new_pass1"}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"CHANGE_PASS","src_key":"","dst_key":"","uid":"user1","pass":"","old_pass":"pass1","new_pass":"new_pass1"}
+Output: {"status":"FAIL","val":null,"uid":""}
+
+
+We check that the REGISTER operation works as intended in register_changepass, checking that users can 
+register, then LOGIN and LOGOUT. We also check that REGISTER correctly fails when trying to re-register
+an existing uid. Also, we check that REGISTERing multiple users does not affect their ability to 
+LOGIN and LOGOUT. We also check that CHANGE_PASS works within a session and does not affect other users
+Expected output of register_changepass:
+Input: {"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user2","pass":"pass2","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user2","pass":"pass2","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"second","val":null,"op":"CHANGE_PASS","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"pass1","new_pass":"new_pass1"}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1","pass":"new_pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user2","pass":"new_pass1","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user2","pass":"pass2","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user2"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user2"}
+
+
+We already checked cases when LOGIN works as intended with correct inputs. In login_pw_tests, we check 
+that LOGIN correctly fails when given the wrong password, a nonexistant uid, or when a session already 
+exists.
+Expected output of login_pw_tests:
+Input: {"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user2","pass":"pass2","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user2"}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1","pass":"pass2","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user3","pass":"pass2","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user2","pass":"pass2","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+
+
+
+
+
+Finally, we also have similar dummy tests to phase0, where we verify that operations FAIL if any 
+parameters are missing or don't exist. These tests are in file missing_param_fail_checks and 
+invalid_param_fail_checks. missing_param_fail_checks verifies that LOGIN fails when no uid is 
+given, COPY fails if no src_key or dst_key is given, CREATE and WRITE fail if either key or val 
+is not given, and DELETE and READ fail if a key is not given. invalid_param_fail_checks verifies 
+the same except for invalid parameters whenever appropriate.
+The expected output of missing_param_fail_checks is:
+Input: {"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user1","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":"one","op":"CREATE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"second","val":null,"op":"CREATE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"COPY","src_key":"first","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"COPY","src_key":"","dst_key":"second","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"COPY","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"WRITE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":"two","op":"WRITE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"READ","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"DELETE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"CHANGE_PASS","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"pass1","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"CHANGE_PASS","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":"new_pass1"}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+
+
+The expected output of invalid_param_fail_checks is:
+Input: {"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user1","pass":"pass2","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user2","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1","pass":"pass2","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":"one","op":"CREATE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"second","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":null,"op":"READ","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":"one","uid":"user1"}
+Input: {"key":"second","val":null,"op":"READ","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":"two","uid":"user1"}
+Input: {"key":"third","val":null,"op":"READ","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"COPY","src_key":"third","dst_key":"second","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"COPY","src_key":"first","dst_key":"third","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"third","val":"three","op":"WRITE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"third","val":null,"op":"DELETE","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":"","pass":"","old_pass":"","new_pass":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+

@@ -1,0 +1,7 @@
+{"uid":"user1","op":"LOGIN"}
+{"uid":"user2","op":"LOGIN"}
+{"op":"LOGOUT"}
+{"uid":"user1","op":"LOGIN"}
+{"op":"LOGOUT"}
+{"uid":"user2","op":"LOGIN"}
+{"op":"LOGOUT"}

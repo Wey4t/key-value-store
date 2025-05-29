@@ -1,0 +1,9 @@
+{"op":"REGISTER","uid":"alice","pass":"123"}
+{"op":"LOGIN","uid":"alice","pass":"123"}
+{"op":"CREATE","key":"k1","val":"val1"}
+{"op":"CREATE","key":"k2","val":"val2"}
+{"op":"MODACL","key":"k1","indirects":["k2"],"readers":["k11r","k12r"],"writers":["k11w","k12w"],"copytos":["k1_copytos1","k1_copytos2"]}
+{"op":"MODACL","key":"k2","indirects":["k1"],"readers":["k21r","k22r"],"copytos":["k2_copytos,k2_copytos1,k2_copytos2"]} 
+{"op":"REVACL","key":"k2"}
+{"op":"REVACL","key":"k1"} 
+{"op":"LOGOUT"}

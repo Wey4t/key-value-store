@@ -1,0 +1,6 @@
+{"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+{"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user2","pass":"pass2","old_pass":"","new_pass":""}
+{"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1","pass":"pass2","old_pass":"","new_pass":""}
+{"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user3","pass":"pass2","old_pass":"","new_pass":""}
+{"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1","pass":"pass1","old_pass":"","new_pass":""}
+{"key":"","val":null,"op":"REGISTER","src_key":"","dst_key":"","uid":"user2","pass":"pass2","old_pass":"","new_pass":""}

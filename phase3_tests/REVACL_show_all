@@ -1,0 +1,15 @@
+{"op":"REGISTER","uid":"alice","pass":"123"}
+{"op":"LOGIN","uid":"alice","pass":"123"}
+{"op":"CREATE","key":"k1","val":"base"}
+{"op":"MODACL","key":"k1","readers":["k1"],"writers":["k1"],"copytos":["k1"],"copyfroms":["k1"]}
+{"op":"CREATE","key":"k2","val":"wrapper","readers":["k2"],"indirects":["k3"]}
+{"op":"CREATE","key":"k3","val":"wrapper","readers":["k3"],"indirects":["k4"]}
+{"op":"CREATE","key":"k4","val":"wrapper","readers":["k4"],"indirects":["k5","k8"]}
+{"op":"CREATE","key":"k5","val":"wrapper","readers":["k5"],"indirects":["k6","k4"]}
+{"op":"CREATE","key":"k6","val":"wrapper","readers":["k6"],"indirects":["k7"]}
+{"op":"CREATE","key":"k7","val":"wrapper","readers":["k7"],"indirects":["k8"]}
+{"op":"CREATE","key":"k8","val":"wrapper","readers":["k8"],"indirects":["k9","k2"]}
+{"op":"CREATE","key":"k9","val":"wrapper","readers":["k9"],"indirects":["k1"]}
+{"op":"REVACL","key":"k2"} 
+{"op":"REVACL","key":"k1"} 
+{"op":"LOGOUT"}

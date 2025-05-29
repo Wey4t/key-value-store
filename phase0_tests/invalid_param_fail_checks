@@ -1,0 +1,12 @@
+{"op":"LOGIN"}
+{"uid":"user1","op":"LOGIN"}
+{"key":"first","val":"one","op":"CREATE"}
+{"key":"second","val":"two","op":"CREATE"}
+{"key":"first","op":"READ"}
+{"key":"second","op":"READ"}
+{"key":"third","op":"READ"}
+{"src_key":"third","dst_key":"second","op":"COPY"}
+{"src_key":"first","dst_key":"third","op":"COPY"}
+{"key":"third","val":"three","op":"WRITE"}
+{"key":"third","op":"DELETE"}
+{"op":"LOGOUT"}

@@ -1,0 +1,10 @@
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"jl2657"}
+Output: {"status":"OK","val":null,"uid":"jl2657"}
+Input: {"key":"first","val":"one","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"jl2657"}
+Input: {"key":"second","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"jl2657"}
+Input: {"key":"","val":null,"op":"COPY","src_key":"first","dst_key":"second","uid":""}
+Output: {"status":"OK","val":null,"uid":"jl2657"}
+Input: {"key":"second","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":"one","uid":"jl2657"}

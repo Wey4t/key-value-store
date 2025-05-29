@@ -1,0 +1,35 @@
+Original proposal
+A --> S: {uid, "LOGIN", K_A, r, {K_A, r}k_A }K_S
+S --> A: {K_AS, {r}K_AS, {K_AS, r}k_S }K_A
+
+New protocol
+A --> S: {K_AS}K_S,{uid,"LOGIN",K_A,r,{uid,"LOGIN",K_A,r}k_A}K_AS
+S --> A: {uid,"OK",r', {uid,"OK",r'}k_S}K_AS
+
+In the original proposal, the server generated and sent the shared key, rather than the client. 
+Now the client generates the shared key after verifying the operation request is valid. Also, 
+the shared key is deleted after a LOGOUT request is made, whether or not the request succeeded.
+
+Additionally, in the original proposal, the server sent a signature to prove it was the correct 
+sender and it also sent back the nonce to prove it received the correct original message.
+
+This was inefficient, as the nonce was originally sent encrypted with the server's public key, 
+meaning only the server could have read it anyway, and returning it re-encrypted with a new 
+key already verifies the server's identity (due to posessing the private key).
+
+We also fixed the server's response in the protocol to include the uid and status that would be 
+included. Also, rather than the client sending a nonce and the server re-encrypting it, both 
+the server and client use the current time.
+
+We originally proposed that all messages in a session after the initial request from the client 
+should be encrypted with the shared key, but the initial request should be encrypted with the 
+server's public key to ensure only the intended recipient can read it. However, due to the 
+length limit when encrypting with public key, we changed the client request message. Now, only 
+the shared key is encrypted with the server public key, and the rest of the message is 
+encrypted with the shared key. 
+
+Another minor change is that we modified the signature that the client adds to their request. 
+We included the entire message in the signature due to feedback from part 1. We also modified 
+the signature in the server's response to match the updated message.
+
+

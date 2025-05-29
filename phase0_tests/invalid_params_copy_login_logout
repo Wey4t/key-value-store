@@ -1,0 +1,9 @@
+{"key":"first","val":"one","op":"CREATE"}
+{"key":"second","val":"two","op":"CREATE"}
+{"src_key":"first","dst_key":"third","op":"COPY"}
+{"src_key":"third","dst_key":"second","op":"COPY"}
+{"uid":"jl2657","op":"LOGIN"}
+{"uid":"jl0000","op":"LOGIN"}
+{"key":"second","op":"READ"}
+{"op":"LOGOUT"}
+{"op":"LOGOUT"}

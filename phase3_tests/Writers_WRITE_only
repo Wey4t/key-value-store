@@ -1,0 +1,14 @@
+{"op":"REGISTER","uid":"alice","pass":"123"}
+{"op":"REGISTER","uid":"bob","pass":"123"}
+{"op":"REGISTER","uid":"trudy","pass":"123"}
+{"op":"LOGIN","uid":"alice","pass":"123"}
+{"op":"CREATE","key":"writekey","val":"init"}
+{"op":"MODACL","key":"writekey","writers":["bob"]}
+{"op":"LOGOUT"}
+{"op":"LOGIN","uid":"bob","pass":"123"}
+{"op":"WRITE","key":"writekey","val":"bobval"}  
+{"op":"READ","key":"writekey"}                 
+{"op":"LOGOUT"}
+{"op":"LOGIN","uid":"trudy","pass":"123"}
+{"op":"WRITE","key":"writekey","val":"trudyval"}   
+{"op":"LOGOUT"}

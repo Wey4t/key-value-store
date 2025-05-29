@@ -1,0 +1,6 @@
+{"uid":"jl2657","op":"LOGIN"}
+{"op":"LOGOUT"}
+{"key":"first","val":"one","op":"CREATE"}
+{"key":"second","val":"two","op":"CREATE"}
+{"src_key":"first","dst_key":"second","op":"COPY"}
+{"key":"second","op":"READ"}

@@ -1,0 +1,6 @@
+{"key":"first","val":"one","op":"CREATE"}
+{"key":"first","val":"new one","op":"WRITE"}
+{"key":"second","val":"two","op":"CREATE"}
+{"src_key":"first","dst_key":"second","op":"COPY"}
+{"key":"second","op":"READ"}
+{"key":"second","op":"DELETE"}

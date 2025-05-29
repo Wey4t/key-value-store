@@ -1,0 +1,5 @@
+{"key":"first","val":"one","op":"CREATE"}
+{"key":"second","val":"two","op":"CREATE"}
+{"src_key":"first","op":"COPY"}
+{"dst_key":"second","op":"COPY"}
+{"op":"LOGIN"}

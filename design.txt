@@ -1,0 +1,25 @@
+Design Decisions
+Data Structures:
+The system uses a map (map[string]Key) to store the keys. Each key has ACLs, writers, readers,
+copytos, copyfroms, indirects. This structure ensures efficient access and management of keys and their attributes.
+
+Modularity:
+Functions like Create, Modacl, and Revacl modularize the operations into distinct actions: creating keys, modifying ACLs, 
+and retrieving permissions respectively. This modularity promotes easier for unit test and extensibility.
+
+Efficiency:
+bfs() (Breadth-First Search) ensures that access control lists (ACLs) for keys are determined in a way that handles chains 
+of indirect dependencies. The system ensures no redundant calculations by tracking visited keys.
+
+Performance Considerations
+Space Complexity:
+The primary space usage is for storing the keys in the Keys map. Given that keys are unique and ACLs for each key are also
+stored as lists, the space complexity is proportional to the number of keys and the number of ACL attributes per key. 
+O(V) for V number of key
+
+Time Complexity:
+Operations like Create, Delete, Modacl are all O(1) since we’re just modifying individual entries in the Keys map.
+
+Revacl involves a BFS traversal of the keys, and thus its complexity depends on the number of keys involved in the indirect 
+ACL relationships. That is traverses O(V + E) keys and indirect edges For each visited key, we join two set of users take O(n)
+In the worst case: every key lists every other key as indirect (E = V²). The final complexity of worest case is O(V·n + V²)

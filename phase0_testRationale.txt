@@ -1,0 +1,90 @@
+In Phase 0 of this project I added the COPY, LOGIN, and LOGOUT operations. 
+All my test files are in the tests/ directory
+
+To test the COPY operation, I have the copy_test, copy_in_session_test, and copy_after_session_test files.
+copy_test creates two key-value pairs: key "first" with value "one", and key "second" with value "two". 
+We then COPY the val from "first" to "second" and READ the value in "second" to confirm the update. The 
+expected output of copy_test is:
+Input: {"uid":"","src_key":"","dst_key":"","key":"first","val":"one","op":"CREATE"}
+Output: {"uid":"","status":"OK","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"second","val":"two","op":"CREATE"}
+Output: {"uid":"","status":"OK","val":null}
+Input: {"uid":"","src_key":"first","dst_key":"second","key":"","val":null,"op":"COPY"}
+Output: {"uid":"","status":"OK","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"second","val":null,"op":"READ"}
+Output: {"uid":"","status":"OK","val":"one"}
+
+copy_in_session_test is the exact same as copy_test, except a user with id "jl2657" logs into a session first.
+We expect a similar output to copy_test, except the "uid" fields of all inputs and outputs should be equal to 
+"jl2657". This test also confirms that once the LOGIN operator is sent, all subsequent requests contain the 
+session UID and all responses repeat the UID.
+The expected output of copy_in_session_test is:
+Input: {"uid":"jl2657","src_key":"","dst_key":"","key":"","val":null,"op":"LOGIN"}
+Output: {"uid":"jl2657","status":"OK","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"first","val":"one","op":"CREATE"}
+Output: {"uid":"jl2657","status":"OK","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"second","val":"two","op":"CREATE"}
+Output: {"uid":"jl2657","status":"OK","val":null}
+Input: {"uid":"","src_key":"first","dst_key":"second","key":"","val":null,"op":"COPY"}
+Output: {"uid":"jl2657","status":"OK","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"second","val":null,"op":"READ"}
+Output: {"uid":"jl2657","status":"OK","val":"one"}
+
+copy_after_session_test is similar to copy_test except user "jl2657" logs into a session and logs out before 
+the first CREATE operation. After the LOGIN and LOGOUT operations, the outputs should be identical to those 
+from copy_test. The expected output of copy_after_session_test is:
+Input: {"uid":"jl2657","src_key":"","dst_key":"","key":"","val":null,"op":"LOGIN"}
+Output: {"uid":"jl2657","status":"OK","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"","val":null,"op":"LOGOUT"}
+Output: {"uid":"","status":"OK","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"first","val":"one","op":"CREATE"}
+Output: {"uid":"","status":"OK","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"second","val":"two","op":"CREATE"}
+Output: {"uid":"","status":"OK","val":null}
+Input: {"uid":"","src_key":"first","dst_key":"second","key":"","val":null,"op":"COPY"}
+Output: {"uid":"","status":"OK","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"second","val":null,"op":"READ"}
+Output: {"uid":"","status":"OK","val":"one"}
+
+
+I also have some dummy tests in missing_params_copy_login_logout. These check if COPY correctly sets the response 
+status to FAIL if either src_key or dst_key is missing, and does a similar check for LOGIN if uid is not provided. 
+The expected output of missing_params_copy_login_logout is:
+Input: {"uid":"","src_key":"","dst_key":"","key":"first","val":"one","op":"CREATE"}
+Output: {"uid":"","status":"OK","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"second","val":"two","op":"CREATE"}
+Output: {"uid":"","status":"OK","val":null}
+Input: {"uid":"","src_key":"first","dst_key":"third","key":"","val":null,"op":"COPY"}
+Output: {"uid":"","status":"FAIL","val":null}
+Input: {"uid":"","src_key":"third","dst_key":"second","key":"","val":null,"op":"COPY"}
+Output: {"uid":"","status":"FAIL","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"","val":null,"op":"LOGIN"}
+Output: {"uid":"","status":"FAIL","val":null}
+
+
+I have another dummy tests file invalid_params_copy_login_logout. This checks that COPY will FAIL if either 
+src_key or dst_key is not found in the key-value store, logs in with uid "jl2657" then tries to login again with 
+uid "jl0000" to check that LOGIN will FAIL if a session is already logged in, and checks that LOGOUT will FAIL 
+if no session is already logged in. Note that a failed LOGIN attmept does not return the session UID because 
+nothing is sent to the server to echo. We have send a READ operator after the failed LOGIN to confirm that the 
+session UID is correctly inserted by the client and echoed by the server in subsequent requests/responses.
+The expected output of invalid_params_copy_login_logout is:
+Input: {"uid":"","src_key":"","dst_key":"","key":"first","val":"one","op":"CREATE"}
+Output: {"uid":"","status":"OK","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"second","val":"two","op":"CREATE"}
+Output: {"uid":"","status":"OK","val":null}
+Input: {"uid":"","src_key":"first","dst_key":"third","key":"","val":null,"op":"COPY"}
+Output: {"uid":"","status":"FAIL","val":null}
+Input: {"uid":"","src_key":"third","dst_key":"second","key":"","val":null,"op":"COPY"}
+Output: {"uid":"","status":"FAIL","val":null}
+Input: {"uid":"jl2657","src_key":"","dst_key":"","key":"","val":null,"op":"LOGIN"}
+Output: {"uid":"jl2657","status":"OK","val":null}
+Input: {"uid":"jl0000","src_key":"","dst_key":"","key":"","val":null,"op":"LOGIN"}
+Output: {"uid":"","status":"FAIL","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"second","val":null,"op":"READ"}
+Output: {"uid":"jl2657","status":"OK","val":"two"}
+Input: {"uid":"","src_key":"","dst_key":"","key":"","val":null,"op":"LOGOUT"}
+Output: {"uid":"","status":"OK","val":null}
+Input: {"uid":"","src_key":"","dst_key":"","key":"","val":null,"op":"LOGOUT"}
+Output: {"uid":"","status":"FAIL","val":null}
+

@@ -1,0 +1,163 @@
+In Phase 1 of the project, we create a secure channel by encrypting messages sent during a session. 
+Test files are in the tests/ directory.
+
+I have tests in operations_fail_before_session and operations_fail_after_session to verify 
+all operations fail outside of a session. These run every valid operation before and after 
+successfully creating an encrypted session, checking that both FAIL in every case. The only 
+difference should be the output of operations_fail_after_session starting with a successful 
+LOGIN and LOGOUT.
+
+
+Expected output of operations_fail_before_session:
+Input: {"key":"first","val":"one","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"first","val":"new one","op":"WRITE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"COPY","src_key":"first","dst_key":"second","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"DELETE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+
+Expected output of operations_fail_after_session:
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1"}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":"one","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"first","val":"new one","op":"WRITE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"COPY","src_key":"first","dst_key":"second","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"DELETE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+
+
+
+
+Operations during a session should act identical to phase 0's expected outputs. In file 
+operations_succeed_during_session we test each valid operation to verify expected outputs 
+and that uid is included in the responses where appropriate. We also check that operations 
+still fail after LOGOUT, even if the keys requested still exist.
+The expected output of operations_succeed_during_session is:
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1"}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":"one","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":"one","uid":"user1"}
+Input: {"key":"first","val":"new one","op":"WRITE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":"new one","uid":"user1"}
+Input: {"key":"second","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":"new one","uid":"user1"}
+Input: {"key":"","val":null,"op":"COPY","src_key":"first","dst_key":"second","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"second","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":"new one","uid":"user1"}
+Input: {"key":"second","val":null,"op":"DELETE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"second","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"first","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":"new one","uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+
+
+
+In only_one_session, we check that LOGIN requests are rejected if a session already exists, and 
+check that LOGIN succeeds after a successful LOGOUT, with different or the same uid.
+The expected output of only_one_session is:
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1"}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user2"}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1"}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user2"}
+Output: {"status":"OK","val":null,"uid":"user2"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user2"}
+
+
+
+Finally, we also have similar dummy tests to phase0, where we verify that operations FAIL if any 
+parameters are missing or don't exist. These tests are in file missing_param_fail_checks and 
+invalid_param_fail_checks. missing_param_fail_checks verifies that LOGIN fails when no uid is 
+given, COPY fails if no src_key or dst_key is given, CREATE and WRITE fail if either key or val 
+is not given, and DELETE and READ fail if a key is not given. invalid_param_fail_checks verifies 
+the same except for invalid parameters whenever appropriate.
+The expected output of missing_param_fail_checks is:
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1"}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":"one","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"second","val":null,"op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"COPY","src_key":"first","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"COPY","src_key":"","dst_key":"second","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"COPY","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"WRITE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":"two","op":"WRITE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"DELETE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+
+
+The expected output of invalid_param_fail_checks is:
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"LOGIN","src_key":"","dst_key":"","uid":"user1"}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":"one","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"second","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}
+Input: {"key":"first","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":"one","uid":"user1"}
+Input: {"key":"second","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":"two","uid":"user1"}
+Input: {"key":"third","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"COPY","src_key":"third","dst_key":"second","uid":""}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"COPY","src_key":"first","dst_key":"third","uid":""}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"third","val":"three","op":"WRITE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"third","val":null,"op":"DELETE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":"user1"}
+Input: {"key":"","val":null,"op":"LOGOUT","src_key":"","dst_key":"","uid":""}
+Output: {"status":"OK","val":null,"uid":"user1"}

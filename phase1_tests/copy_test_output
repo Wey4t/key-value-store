@@ -1,0 +1,8 @@
+Input: {"key":"first","val":"one","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":"two","op":"CREATE","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"","val":null,"op":"COPY","src_key":"first","dst_key":"second","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
+Input: {"key":"second","val":null,"op":"READ","src_key":"","dst_key":"","uid":""}
+Output: {"status":"FAIL","val":null,"uid":""}
