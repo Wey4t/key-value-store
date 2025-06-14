@@ -6,5 +6,6 @@ type Key struct {
 	Copyfroms []string `json:"copyfroms"`
 	Copytos   []string `json:"copytos"`
 	Indirects []string `json:"indirects"`
+	Values    []string `json:"values`
 	Owner     string   `json:"owner"`
 }

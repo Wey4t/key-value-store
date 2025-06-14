@@ -7,4 +7,6 @@ use (
 	./server
 	./client
 	./network
+	./db
+	./utils
 )

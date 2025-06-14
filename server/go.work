@@ -3,4 +3,6 @@ go 1.23.0
 use (
 	./types
 	./crypto_utils
+	./db
+	./utils
 )

@@ -3,11 +3,14 @@ package server
 import (
 	"crypto/rsa"
 	"encoding/json"
+	"fmt"
 	"os"
 	"slices"
 
 	"crypto_utils"
+	. "db"
 	. "types"
+	. "utils"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -16,6 +19,22 @@ import (
 var privateKey *rsa.PrivateKey
 var publicKey *rsa.PublicKey
 var shadow map[string][]byte
+var db DB
+var database = "test.db"
+var user = &TableDef{
+	Name:   "shadow",
+	Types:  []uint32{TYPE_BYTES, TYPE_BYTES},
+	Cols:   []string{"uid", "password"},
+	PKeys:  1,
+	Prefix: 0,
+}
+var kv = &TableDef{
+	Name:   "key_value",
+	Types:  []uint32{TYPE_BYTES, TYPE_BYTES},
+	Cols:   []string{"key", "value"},
+	PKeys:  1,
+	Prefix: 0,
+}
 
 // server blinding table C->{publicKey, uid, time}
 var sessionTable map[string]Blindentry
@@ -41,7 +60,13 @@ func init() {
 	Responses = make(chan NetworkData)
 	shadow = make(map[string][]byte)
 	sessionUID = ""
+	db.Path = database
+	os.Remove(database)
+	db.Open()
+	// db.TableNew(TDEF_META)
 
+	db.TableNew(user)
+	db.TableNew(kv)
 	go receiveThenSend()
 }
 
@@ -118,6 +143,10 @@ func DoPhase2Register(verify_message Message, K_AS []byte, requestData NetworkDa
 		return failureMessage(verify_message.Uid)
 
 	} else {
+		rec := (&Record{}).AddStr("uid", []byte(verify_message.Uid)).AddStr("password", hashed)
+		fmt.Println(rec)
+		db.Insert("shadow", *rec)
+		Assert(true)
 		shadow[verify_message.Uid] = hashed
 
 	}
@@ -143,10 +172,15 @@ func DoPhase2Register(verify_message Message, K_AS []byte, requestData NetworkDa
 
 func verifyPassword(uid string, password string) bool {
 	_, ok := shadow[uid]
+	search_rec := (&Record{}).AddStr("uid", []byte(uid))
+
+	ok, _ = db.Get("shadow", search_rec)
 	if !ok {
 		return false
 	}
-	err := bcrypt.CompareHashAndPassword([]byte(shadow[uid]), []byte(password))
+	err := bcrypt.CompareHashAndPassword(search_rec.Get("password").Str, []byte(password))
+
+	// err := bcrypt.CompareHashAndPassword([]byte(shadow[uid]), []byte(password))
 	return err == nil
 }
 
@@ -323,6 +357,15 @@ func doLogout(request *Request, response *Response) {
 // key-value store to value v and metavalue m.
 func doCreate(request *Request, response *Response) {
 	if _, ok := kvstore[request.Key]; !ok {
+		rec := (&Record{}).
+			AddStr("key", []byte(request.Key))
+		if val, ok := request.Val.(string); ok {
+			rec.AddStr("value", []byte(val))
+		} else {
+			response.Status = FAIL
+			return
+		}
+		db.Insert("key_value", *rec)
 		kvstore[request.Key] = request.Val
 		Create(
 			request.Uid,
@@ -347,6 +390,8 @@ func doDelete(request *Request, response *Response) {
 	if _, ok := kvstore[request.Key]; ok {
 		if isOwner(request.Uid, request.Key) {
 			delete(kvstore, request.Key)
+			rec := (&Record{}).AddStr("key", []byte(request.Key))
+			db.Delete("key_value", *rec)
 			DeleteKey(request.Uid, request.Key)
 			response.Status = OK
 		}
@@ -358,9 +403,16 @@ func doDelete(request *Request, response *Response) {
 // key dst_key to value associated with key src_key.
 // If either key does not exist then status is FAIL.
 func doCopy(request *Request, response *Response) {
-	if _, ok1 := kvstore[request.Src_key]; ok1 && slices.Contains(Csrc(request.Src_key), request.Uid) {
-		if _, ok2 := kvstore[request.Dst_key]; ok2 && slices.Contains(Cdst(request.Dst_key), request.Uid) {
-			kvstore[request.Dst_key] = kvstore[request.Src_key]
+	rec1 := (&Record{}).AddStr("key", []byte(request.Src_key))
+	ok1, _ := db.Get("key_value", rec1)
+	rec2 := (&Record{}).AddStr("key", []byte(request.Dst_key))
+	ok2, _ := db.Get("key_value", rec2)
+	if ok1 && slices.Contains(Csrc(request.Src_key), request.Uid) {
+		if ok2 && slices.Contains(Cdst(request.Dst_key), request.Uid) {
+			new := (&Record{}).AddStr("key", []byte(request.Dst_key))
+			new.AddStr("value", rec1.Get("value").Str)
+			db.Update("key_value", *new)
+			// kvstore[request.Dst_key] = kvstore[request.Src_key]
 			response.Status = OK
 		}
 	}
@@ -370,8 +422,11 @@ func doCopy(request *Request, response *Response) {
 // associated with key. If key does not exist
 // then status is FAIL.
 func doReadVal(request *Request, response *Response) {
-	if v, ok := kvstore[request.Key]; ok && slices.Contains(R(request.Key), request.Uid) {
-		response.Val = v
+	rec := (&Record{}).AddStr("key", []byte(request.Key))
+	ok, err := db.Get("key_value", rec)
+	// v, ok := kvstore[request.Key];
+	if err == nil && ok && slices.Contains(R(request.Key), request.Uid) {
+		response.Val = string(rec.Get("value").Str)
 		response.Status = OK
 	}
 }
@@ -381,8 +436,19 @@ func doReadVal(request *Request, response *Response) {
 // with key k to value v. If key does not exist
 // then status is FAIL.
 func doWriteVal(request *Request, response *Response) {
-	if _, ok := kvstore[request.Key]; ok && slices.Contains(W(request.Key), request.Uid) {
-		kvstore[request.Key] = request.Val
+	rec := (&Record{}).AddStr("key", []byte(request.Key))
+	ok, err := db.Get("key_value", rec)
+	// _, ok := kvstore[request.Key];
+	if err == nil && ok && slices.Contains(W(request.Key), request.Uid) {
+		new := (&Record{}).AddStr("key", []byte(request.Key))
+		if val, ok := request.Val.(string); ok {
+			new.AddStr("value", []byte(val))
+		} else {
+			response.Status = FAIL
+			return
+		}
+		// kvstore[request.Key] = request.Val
+		db.Update("key_value", *new)
 		response.Status = OK
 	}
 }
